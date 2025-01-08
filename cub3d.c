@@ -6,7 +6,7 @@
 /*   By: fkuruthl <fkuruthl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/06 18:36:29 by inkahar           #+#    #+#             */
-/*   Updated: 2025/01/05 21:12:48 by fkuruthl         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:51:54 by fkuruthl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,21 +93,48 @@ void	init_color(int *color, char *element)
 	 exit(perror_cube3d("colour invalid", 0));
 }
 
-void	init_texture(t_vars *vars, t_texture *txt, char *element, int val)
-{
-    if (!vars->mlx)
-        exit(perror_cube3d("mlx is not initialized", 0));
-    txt->img = mlx_xpm_file_to_image(vars->mlx, element,
-            &txt->width, &txt->height);
-    if (!txt->img)
-        exit(perror_cube3d("Failed to load texture", 0));
 
+
+void init_texture(t_vars *vars, t_texture *txt, char *element, int val)
+{
+    if (!vars || !txt || !element)
+    {
+        fprintf(stderr, "Error: Invalid parameters in init_texture\n");
+        exit(EXIT_FAILURE);
+    }
+    vars->mlx = mlx_init();
+    if (!vars->mlx) {
+        fprintf(stderr, "Error: mlx not initialized\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Load texture image using MLX
+    int width, height;
+    printf("Attempting to load texture: %s\n", element);
+    txt->img = mlx_xpm_file_to_image(vars->mlx, element, &width, &height);
+    if (!txt->img)
+    {
+        fprintf(stderr, "Error: Failed to load texture: %s\n", element);
+        exit(EXIT_FAILURE);
+    }
+
+    // Get texture data
     txt->addr = mlx_get_data_addr(txt->img, &txt->bits_per_pixel,
-            &txt->line_length, &txt->endian);
-    txt->pix_y = 0;
-    txt->pix_x = 0;
+                                   &txt->line_length, &txt->endian);
+    if (!txt->addr)
+    {
+        mlx_destroy_image(vars->mlx, txt->img);
+        fprintf(stderr, "Error: Failed to get texture data\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Set texture properties
+    txt->width = width;
+    txt->height = height;
     txt->txt = val;
 }
+
+
 
 t_img	*ft_t_img(void)
 {
@@ -336,13 +363,19 @@ void store(t_map *map, char *filename) {
 
 
 
-char cube3d(char *filename) {
+char cube3d(char *filename) 
+{
     t_vars *vars;
     t_map map;
 
     validate_file_format(filename);
 
     vars = ft_t_vars();
+if (!vars)
+{
+    fprintf(stderr, "Error: Memory allocation for vars failed\n");
+    exit(EXIT_FAILURE);
+}
     element_hunter(filename);
 
     map.width = fill(&map, filename);
@@ -352,9 +385,17 @@ char cube3d(char *filename) {
     if (!path_struct(&map)) { 
         exit(perror_cube3d("map invalid", 0));
     }
-    //vars->mlx = mlx_init();
+    vars->mlx = mlx_init();
+if (!vars->mlx)
+{
+    fprintf(stderr, "Error: mlx_init failed\n");
+    exit(EXIT_FAILURE);
+}
 	vars->win = mlx_new_window(vars->mlx, WINDOW_WIDTH, WINDOW_HEIGHT,
 			"cub3D");
+    // vars->image.address = mlx_get_data_addr(vars->image.img,
+	// 		&vars->image.bits_pixel, &vars->image.line_length,
+	// 		&vars->image.endian);
     game(vars, &map);
     mlx_loop(vars->mlx);
     return 0;

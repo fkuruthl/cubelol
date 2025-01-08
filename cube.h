@@ -206,13 +206,18 @@ typedef struct s_player
 
 typedef struct s_img
 {
-    t_texture *no;
-    t_texture *so;
-    t_texture *we;
-    t_texture *ea;
-    int f; // Floor color
-    int c; // Ceiling color
-    int init;
+    void    *img;             // The image data pointer
+    char    *address;         // Pointer to the start of the image's data
+    int     bits_pixel;   // The number of bits per pixel
+    int     line_length;      // The length of each line in bytes
+    int     endian;           // The endianness of the image
+    t_texture *no;            // North texture
+    t_texture *so;            // South texture
+    t_texture *we;            // West texture
+    t_texture *ea;            // East texture
+    int     f;                // Floor color
+    int     c;                // Ceiling color
+    int     init;             // Initialization flag
 } t_img;
 
 typedef struct s_keys
@@ -287,6 +292,8 @@ int is_valid_config_line(const char *line);
 int is_valid_map_line(const char *line);
 void init_player_direction(t_vars *vars, char dir);
 int color_to_hex(int color);
+t_img *init_textures(t_vars *vars);
 void init_texture(t_vars *vars, t_texture *txt, char *element, int val);
+
 
 #endif

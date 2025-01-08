@@ -32,8 +32,8 @@ int main(int argc , char **argv)
 	//t_map map;
 	if (argc != 2)
 	{
-		write(1,"invalid format",15); //wrote a message
-		return (1); //changed to 1 instead of 0
+		write(1,"invalid format",15);
+		return (1);
 	}
     if (cubcheck(argv[1]))
         cube3d(argv[1]);
@@ -42,11 +42,5 @@ int main(int argc , char **argv)
 		write(1,"invalid format2",15);
 			return 1;	
 	}
-	//vars = ft_t_vars();
-	// vars->image.img = mlx_new_image(vars->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	// vars->image.address = mlx_get_data_addr(vars->image.img,
-	// 		&vars->image.bits_pixel, &vars->image.line_length,
-	// 		&vars->image.endian);
-
 	return(0);	
 }

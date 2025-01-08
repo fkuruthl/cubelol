@@ -1,7 +1,7 @@
-NO ./Texture/colorstone.xpm
-SO ./Texture/redbrick.xpm
-WE ./Texture/wood.xpm
-EA ./Texture/greystone.xpm
+NO ./Texture/NO.xpm
+SO ./Texture/SO.xpm
+WE ./Texture/WE.xpm
+EA ./Texture/EA.xpm
 F 100,100,100
 C 50,50,50
 

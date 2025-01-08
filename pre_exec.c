@@ -1,6 +1,4 @@
 #include "cube.h"
-
-// Function to find player position and direction
 void player_facing(t_vars *vars, char dir)
 {
     vars->player_side = 'N';
@@ -11,7 +9,6 @@ void player_facing(t_vars *vars, char dir)
     else if (dir == 'W')
         vars->player_side = 'W';
 }
-
 void find_player_position(char **map, t_vars *vars)
 {
     if (!map)
@@ -19,7 +16,6 @@ void find_player_position(char **map, t_vars *vars)
         fprintf(stderr, "Error: Map is NULL\n");
         exit(EXIT_FAILURE);
     }
-
     int i = -1;
     while (map[++i])
     {
@@ -34,7 +30,6 @@ void find_player_position(char **map, t_vars *vars)
             }
         }
     }
-
     fprintf(stderr, "Error: Player starting position not found in map\n");
     exit(EXIT_FAILURE);
 }
@@ -118,11 +113,16 @@ void	init_player_direction(t_vars *data, char dir)
 
 void player_info(t_vars *vars, t_map *map)
 {
+    if (!vars || !map || !map->map) {
+        fprintf(stderr, "Error: Invalid parameters in player_info\n");
+        exit(EXIT_FAILURE);
+    }
+
     find_player_position(map->map, vars);
-    // player_facing(vars, vars->map[(int)vars->pos_x][(int)vars->pos_y]);
-    // vars->map[(int)vars->pos_x][(int)vars->pos_y] = 'T'; // Mark as visited
-    // init_player_direction(vars, vars->player_side);
-    // vars->radius = vars->map_y / 8.0; // Set camera height based on screen height
+    player_facing(vars, map->map[(int)vars->pos_x][(int)vars->pos_y]);
+    map->map[(int)vars->pos_x][(int)vars->pos_y] = 'T'; // Mark as visited
+    init_player_direction(vars, vars->player_side);
+    vars->radius = vars->map_y / 8.0; // Set camera height based on screen height
 }
 void init_keys(t_keys *keys)
 {
@@ -135,17 +135,44 @@ void init_keys(t_keys *keys)
 }
 void data_info(t_vars *vars, t_map *map)
 {
+    if (!vars || !map)
+    {
+        fprintf(stderr, "Error: NULL pointer passed to data_info\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize keys
     init_keys(&vars->keys);
-    //vars->floor_color = color_to_hex(vars->textures->f); // Convert floor color to hex
-    //vars->ceiling_color = color_to_hex(vars->textures->c); // Convert ceiling color to hex
+
+    // Initialize player data
     player_info(vars, map);
 
-    //  init_texture(vars, vars->textures->no, "NO", NO);
-    // init_texture(vars, vars->textures->so, "SO", SO);
-    // init_texture(vars, vars->textures->ea, "EA", EA);
-    // init_texture(vars, vars->textures->we, "WE", WE);
-}
+    // Check if textures structure exists
+    if (!vars->textures)
+    {
+        fprintf(stderr, "Error: Textures not initialized\n");
+        exit(EXIT_FAILURE);
+    }
 
+    // Allocate texture objects if they haven't been allocated yet
+    if (!vars->textures->no) vars->textures->no = malloc(sizeof(t_texture));
+    if (!vars->textures->so) vars->textures->so = malloc(sizeof(t_texture));
+    if (!vars->textures->ea) vars->textures->ea = malloc(sizeof(t_texture));
+    if (!vars->textures->we) vars->textures->we = malloc(sizeof(t_texture));
+
+    if (!vars->textures->no || !vars->textures->so || 
+        !vars->textures->ea || !vars->textures->we)
+    {
+        fprintf(stderr, "Error: Failed to allocate texture objects\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize textures
+    init_texture(vars, vars->textures->no, "NO", NO);
+    init_texture(vars, vars->textures->so, "SO", SO);
+    init_texture(vars, vars->textures->ea, "EA", EA);
+    init_texture(vars, vars->textures->we, "WE", WE);
+}
 void game(t_vars *vars, t_map *map)
 {
     data_info(vars, map);
